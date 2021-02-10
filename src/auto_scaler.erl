@@ -1,6 +1,5 @@
 -module(auto_scaler).
 -export([init/0]).
--define(INITIAL_WORKERS, 2).
 -define(SCALER_RATE, 1).
 
 init() ->
@@ -14,8 +13,8 @@ inf_loop({Prev_time, Acc}) ->
         new_mess ->
             case check_if_time_passed(Prev_time) of
                 false -> inf_loop({Prev_time, Acc+1});
-                true -> io:write(Acc),
-                    io:nl(),
+                true ->
+                    dynamic_supervisor ! {mess_quant, Acc},
                     inf_loop({erlang:monotonic_time(second), 0})
             end
     end.

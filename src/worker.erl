@@ -1,5 +1,14 @@
 -module(worker).
--export([init/0]).
+-export([init/1]).
 
-init() ->
+init(Creator_Pid) ->
+    inf_loop(),
     ok.
+
+inf_loop() ->
+    receive
+        stop ->
+            ok;
+        Msg ->
+            inf_loop()
+    end.
