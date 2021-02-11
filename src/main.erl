@@ -5,7 +5,6 @@
 
 init() ->
     register(dynamic_supervisor, spawn(dynamic_supervisor, init, [])),
-    register(router, spawn(router, init, [])),
     register(auto_scaler, spawn(auto_scaler, init, [])),
     register(counter, spawn(counter, init, [])),
     inets:start(),

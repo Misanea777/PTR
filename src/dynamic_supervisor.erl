@@ -1,10 +1,12 @@
 -module(dynamic_supervisor).
 -export([init/0, create_workers/2, decide/1, increase_workers/2]).
--define(INITIAL_WORKERS, 100).
+-define(INITIAL_WORKERS, 10).
 -define(MINIMAL_WORKERS, 2).
 
 init() ->
-    inf_loop(create_workers([], ?INITIAL_WORKERS)),
+    Workers = create_workers([], ?INITIAL_WORKERS),
+    register(router, spawn(router, init, [Workers])),
+    inf_loop(Workers),
     ok.
 
 inf_loop(Workers) ->
@@ -14,10 +16,7 @@ inf_loop(Workers) ->
         {mess_quant, Acc} ->
             New_workers = decide({Workers, Acc}),
             % next step - send to router
-            io:write(Acc),
-            io:write("_"),
-            io:write(length(New_workers)),
-            io:nl(),
+            router ! {workers, New_workers},
             inf_loop(New_workers)
 
     end.

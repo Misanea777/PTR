@@ -10,7 +10,7 @@ inf_loop() ->
         stop ->
             {stoped, self()};
         Msg ->
-            router ! Msg,
+            router ! {msg, Msg},
             auto_scaler ! new_mess,
             inf_loop()
     end.

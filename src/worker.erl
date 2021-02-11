@@ -2,13 +2,15 @@
 -export([init/1]).
 
 init(Creator_Pid) ->
-    inf_loop(),
+    inf_loop(0),
     ok.
 
-inf_loop() ->
+inf_loop(Acc) ->
+    %  timer:sleep(random:uniform(451)+49),
+    % timer:sleep(1),
     receive
         stop ->
             ok;
-        Msg ->
-            inf_loop()
+        {msg, Msg} ->
+            inf_loop(Acc+1)
     end.
