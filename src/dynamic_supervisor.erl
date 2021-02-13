@@ -22,7 +22,7 @@ inf_loop(Workers) ->
     end.
 
 decide({Workers, Acc}) ->
-    Diff = length(Workers) - (Acc div 100),
+    Diff = length(Workers) - (Acc div 10),
     case Diff >= 0 of
         true ->
             decrease_workers(Workers, Diff);

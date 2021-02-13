@@ -7,7 +7,7 @@ init(Creator_Pid) ->
 
 inf_loop(Acc) ->
     %  timer:sleep(random:uniform(451)+49),
-    % timer:sleep(1),
+    timer:sleep(50),
     receive
         stop ->
             ok;

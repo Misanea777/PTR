@@ -14,7 +14,7 @@ inf_loop(Workers, Index) ->
         {msg, Msg} ->
             {message_queue_len, Len} = process_info(lists:last(Workers), message_queue_len),
             io:write(Len),
-            io:nl(),
+            io:nl(),  
             inf_loop(Workers, round_robin({Workers, Index}, Msg))
     end.
 
