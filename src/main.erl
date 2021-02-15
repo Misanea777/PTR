@@ -4,8 +4,6 @@
 -define(ROUTE_2, "http://localhost:8000/tweets/2").
 
 init() ->
-    counter:start_link(),
-    register(c1, spawn_link(connection, connect, [counter, ?ROUTE_1])),
     ok.
 
 
