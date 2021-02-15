@@ -4,12 +4,9 @@
 -define(ROUTE_2, "http://localhost:8000/tweets/2").
 
 init() ->
-    register(dynamic_supervisor, spawn(dynamic_supervisor, init, [])),
-    register(auto_scaler, spawn(auto_scaler, init, [])),
-    register(counter, spawn(counter, init, [])),
-    inets:start(),
-    register(c1, spawn(connection, connect, [whereis(counter), ?ROUTE_1])),
-    register(c2, spawn(connection, connect, [whereis(counter), ?ROUTE_2])).
+    counter:start_link(),
+    register(c1, spawn_link(connection, connect, [counter, ?ROUTE_1])),
+    ok.
 
 
 get_nr_of_msg(Alias) ->

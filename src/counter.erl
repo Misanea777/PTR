@@ -1,16 +1,34 @@
 -module(counter).
--export([init/0]).
+-behaviour(gen_server).
 
-init() ->
-    inf_loop(),
+%% API
+-export([start_link/0]).
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
+-record(state, {dummy}).
+
+start_link() ->
+    gen_server:start_link({local, counter}, ?MODULE, [], []).
+
+init(_Args) ->
+    {ok, #state{dummy=1}}.
+
+handle_call(stop, _From, State) ->
+    {stop, normal, stopped, State};
+
+handle_call(_Request, _From, State) ->
+    {reply, ok, State}.
+
+handle_cast(Msg, State) ->
+    %router ! {msg, Msg},
+    % gen_server:cast(auto_scaler ! new_mess,
+    io:format("rec: ~p~n", [Msg]),
+    {noreply, State}.
+
+handle_info(_Info, State) ->
+    {noreply, State}.
+
+terminate(_Reason, _State) ->
     ok.
 
-inf_loop() ->
-    receive
-        stop ->
-            {stoped, self()};
-        Msg ->
-            router ! {msg, Msg},
-            auto_scaler ! new_mess,
-            inf_loop()
-    end.
+code_change(_OldVsn, State, _Extra) ->
+    {ok, State}.
