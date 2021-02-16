@@ -1,56 +1,61 @@
 -module(dynamic_supervisor).
--export([init/0, create_workers/2, decide/1, increase_workers/2]).
--define(INITIAL_WORKERS, 10).
--define(MINIMAL_WORKERS, 2).
+-behaviour(supervisor).
+-define(MIN_WORKERS, 1).
 
-init() ->
-    Workers = create_workers([], ?INITIAL_WORKERS),
-    register(router, spawn(router, init, [Workers])),
-    inf_loop(Workers),
-    ok.
+%% API
+-export([start_link/0, add_workers/1, remove_workers/1]).
+-export([init/1]).
 
-inf_loop(Workers) ->
-    receive
-        stop ->
-            {stoped, self()};
-        {mess_quant, Acc} ->
-            New_workers = decide({Workers, Acc}),
-            % next step - send to router
-            router ! {workers, New_workers},
-            inf_loop(New_workers)
+start_link() ->
+    supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
-    end.
+init(_Args) ->
+    SupervisorSpecification = #{
+        strategy => simple_one_for_one,
+        intensity => 10,
+        period => 60},
 
-decide({Workers, Acc}) ->
-    Diff = length(Workers) - (Acc div 10),
-    case Diff >= 0 of
-        true ->
-            decrease_workers(Workers, Diff);
-        false ->
-            increase_workers(Workers, -Diff)
-    end.
+    ChildSpecifications = [
+        #{
+            id => worker,
+            start => {worker, start_link, []},
+            restart => permanent, 
+            shutdown => infinity,
+            type => worker, 
+            modules => [worker]
+        }
+    ],
+
+    {ok, {SupervisorSpecification, ChildSpecifications}}.
 
 
+add_worker() ->
+    {ok, Child1Pid} = supervisor:start_child(?MODULE, []),
+    Child1Pid.
+remove_worker(Pid) ->
+    supervisor:terminate_child(?MODULE, Pid).
+
+add_workers(0) ->
+    ok;
+
+add_workers(N) ->
+    add_worker(),
+    add_workers(N-1).
+
+remove_workers(N) ->
+    Workers = supervisor:which_children(?MODULE),
+    remove_workers(N, Workers).
+
+remove_workers(N, Workers) when (N == 0) or (length(Workers) == ?MIN_WORKERS) ->
+    ok;
+
+remove_workers(N, Workers) ->
+    [{_Id, Pid, _Type, _Modules}|T] = Workers,
+    remove_worker(Pid),
+    remove_workers(N-1, T).
 
 
-increase_workers(Workers, Value) ->
-    create_workers(Workers, Value).
 
-decrease_workers(Workers, 0) ->
-    Workers;
 
-decrease_workers(Workers, Value) ->
-    [H|T] = Workers,
-    H ! {stop, self()},
-    decrease_workers(T, Value-1).
 
-create_workers([H|T], 0) ->
-    [H|T];
 
-create_workers([], Value) ->
-    Pid = spawn(worker, init, [self()]),
-    create_workers([Pid], Value-1);
-
-create_workers(Workers, Value) ->
-    Pid = spawn(worker, init, [self()]),
-    create_workers([Pid|Workers], Value-1).

@@ -30,6 +30,7 @@ handle_info({http, {_RequestId, stream, BinBodyPart}}, State) ->
     Is_true = lists:suffix([125,10,10], L),
     if Is_true ->
             % io:format("::::::::::::::::::::::::::  ~s~n", [State ++ L]),
+            gen_server:cast(counter, [State ++ L]),
             New_state = [];
         true ->
             New_state = State ++ L

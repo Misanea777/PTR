@@ -20,8 +20,7 @@ handle_call(_Request, _From, State) ->
 
 handle_cast(Msg, State) ->
     %router ! {msg, Msg},
-    % gen_server:cast(auto_scaler ! new_mess,
-    io:format("rec: ~p~n", [Msg]),
+    gen_server:cast(auto_scaler, new_mess),
     {noreply, State}.
 
 handle_info(_Info, State) ->
