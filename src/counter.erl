@@ -19,7 +19,7 @@ handle_call(_Request, _From, State) ->
     {reply, ok, State}.
 
 handle_cast(Msg, State) ->
-    %router ! {msg, Msg},
+    gen_server:cast(router, {msg, Msg}),
     gen_server:cast(auto_scaler, new_mess),
     {noreply, State}.
 

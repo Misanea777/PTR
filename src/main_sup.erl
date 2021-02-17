@@ -16,12 +16,28 @@ init(_Args) ->
 
     ChildSpecifications = [
         #{
+            id => dynamic_supervisor,
+            start => {dynamic_supervisor, start_link, []},
+            restart => permanent,
+            shutdown => infinity,
+            type => supervisor,
+            modules => [dynamic_supervisor]
+        },
+        #{
             id => auto_scaler,
             start => {auto_scaler, start_link, []},
             restart => permanent,
             shutdown => infinity,
             type => worker,
             modules => [auto_scaler]
+        },
+        #{
+            id => router,
+            start => {router, start_link, []},
+            restart => permanent,
+            shutdown => infinity,
+            type => worker,
+            modules => [router]
         },
         #{
             id => counter,

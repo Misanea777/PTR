@@ -16,14 +16,25 @@ start_link() ->
 init(_Args) ->
     {ok, #state{dummy=1}}.
 
+
+
+handle_cast({msg, _Msg}, State) ->
+    
+    {noreply, State}.
+
+
+
+
+
+
+
+% Unused func
+
 handle_call(stop, _From, State) ->
     {stop, normal, stopped, State};
 
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
-
-handle_cast(_Msg, State) ->
-    {noreply, State}.
 
 handle_info(_Info, State) ->
     {noreply, State}.

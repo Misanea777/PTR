@@ -1,29 +1,49 @@
 -module(router).
--export([init/1, round_robin/2]).
+-behaviour(gen_server).
 
-init(Workers) ->
-    inf_loop(Workers, 1),
+%% API
+-export([start_link/0]).
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
+
+
+start_link() ->
+    gen_server:start_link({local, router}, ?MODULE, [], []).
+
+init(_Args) ->
+    {ok, 1}.
+
+
+
+handle_cast({msg, Msg}, State) ->
+    New_state = round_robin(State, Msg),
+    {noreply, New_state}.
+
+%Logic
+
+round_robin(Index, Msg) ->
+    Is_true = Index > length(global:registered_names()),
+    if Is_true ->
+            Next_index = 1;
+        true ->
+           Next_index = Index
+    end,
+    gen_server:cast(lists:nth(Next_index, global:registered_names()), {msg, Msg}),
+    Next_index + 1.
+
+
+
+% Unused fun
+handle_call(stop, _From, State) ->
+    {stop, normal, stopped, State};
+
+handle_call(_Request, _From, State) ->
+    {reply, ok, State}.
+
+handle_info(_Info, State) ->
+    {noreply, State}.
+
+terminate(_Reason, _State) ->
     ok.
 
-inf_loop(Workers, Index) ->
-    receive
-        {workers, U_workers} ->
-            inf_loop(U_workers, 1);
-        stop ->
-            {stoped, self()};
-        {msg, Msg} ->
-            {message_queue_len, Len} = process_info(lists:last(Workers), message_queue_len),
-            io:write(Len),
-            io:nl(),  
-            inf_loop(Workers, round_robin({Workers, Index}, Msg))
-    end.
-
-
-round_robin({Workers, Index}, Msg) when Index =< length(Workers) ->
-    lists:nth(Index, Workers) ! {msg, Msg},
-    Index+1;
-
-round_robin({Workers, Index}, Msg) when Index > length(Workers) ->
-    lists:nth(1, Workers) ! {msg, Msg},
-    2.
-
+code_change(_OldVsn, State, _Extra) ->
+    {ok, State}.
