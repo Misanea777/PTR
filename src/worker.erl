@@ -18,8 +18,11 @@ init(_Args) ->
 
 
 
-handle_cast({msg, _Msg}, State) ->
-    
+handle_cast({msg, Msg}, State) ->
+    % timer:sleep(rand:uniform(41) + 9),
+    Formated_message = string:prefix(string:chomp(Msg), "event: \"message\"\n\ndata: "),
+    Parssed_message = mochijson:decode(Formated_message),
+    io:format("~nMsg:::::::::~s~n", [Formated_message]),
     {noreply, State}.
 
 
@@ -40,6 +43,8 @@ handle_info(_Info, State) ->
     {noreply, State}.
 
 terminate(_Reason, _State) ->
+    {message_queue_len, Len} = process_info(self(), message_queue_len),
+    io:format("????????????Terminating worker ~p with ~p messages~n", [self(), Len]),
     ok.
 
 code_change(_OldVsn, State, _Extra) ->
