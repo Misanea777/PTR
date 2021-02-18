@@ -21,8 +21,8 @@ handle_cast(new_mess, {Prev_time, Acc} = _State) ->
     Is_true = check_if_time_passed(Prev_time),
     if Is_true ->
             adjust_workers(Acc),
-            % io:format("----------Msg:~p W:~p~n", [Acc, length(global:registered_names())]),
-            % print_workers_load(),
+            io:format("----------Msg:~p W:~p :~p ~n", [Acc, length(global:registered_names()), length(supervisor:which_children(dynamic_supervisor))]),
+            print_workers_load(),
             New_state = {erlang:monotonic_time(second), 0};
         true ->
             New_state = {Prev_time, Acc+1}

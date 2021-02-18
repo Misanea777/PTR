@@ -4,7 +4,7 @@
 %% API
 -export([stop/1, start_link/0]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
--record(state, {dummy}).
+
 
 
 stop(Name) ->
@@ -14,20 +14,18 @@ start_link() ->
     gen_server:start_link(?MODULE, [], []).
 
 init(_Args) ->
-    {ok, #state{dummy=1}}.
+    global:register_name(self(), self()),
+    {ok, none}.
 
 
 
 handle_cast({msg, Msg}, State) ->
-    % timer:sleep(rand:uniform(41) + 9),
+    timer:sleep(rand:uniform(41) + 9),
     Formated_message = string:prefix(string:chomp(Msg), "event: \"message\"\n\ndata: "),
-    Parssed_message = mochijson:decode(Formated_message),
-    io:format("~nMsg:::::::::~s~n", [Formated_message]),
-    {noreply, State}.
-
-
-
-
+    Parssed_message = mochijson2:decode(Formated_message),
+    Text = ej:get({"message", "tweet", "text"}, Parssed_message),
+    % io:format("~nText: ~s~n", [Text]),
+    {noreply, State}. 
 
 
 

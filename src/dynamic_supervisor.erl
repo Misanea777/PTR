@@ -31,7 +31,6 @@ init(_Args) ->
 
 add_worker() ->
     {ok, Child1Pid} = supervisor:start_child(?MODULE, []),
-    global:register_name(Child1Pid, Child1Pid),
     Child1Pid.
 remove_worker(Pid) ->
     supervisor:terminate_child(?MODULE, Pid).
