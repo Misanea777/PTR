@@ -9,12 +9,21 @@ start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 init(_Args) ->
+    ets:new(sent_dict,[set, public, named_table]),
     SupervisorSpecification = #{
         strategy => one_for_all, 
         intensity => 10,
         period => 60},
 
     ChildSpecifications = [
+        #{
+            id => dict_getter,
+            start => {dict_getter, start_link, []},
+            restart => temporary,
+            shutdown => infinity,
+            type => worker,
+            modules => [dict_getter]
+        },
         #{
             id => dynamic_supervisor,
             start => {dynamic_supervisor, start_link, []},
