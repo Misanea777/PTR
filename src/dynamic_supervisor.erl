@@ -12,7 +12,7 @@ start_link() ->
 init(_Args) ->
     SupervisorSpecification = #{
         strategy => simple_one_for_one,
-        intensity => 10,
+        intensity => 100,
         period => 60},
 
     ChildSpecifications = [
