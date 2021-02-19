@@ -26,18 +26,31 @@ handle_info({http, {_Ref,stream_start, _Headers}}, State) ->
     {noreply, State};
 
 handle_info({http, {_RequestId, stream, BinBodyPart}}, State) ->
-    L = binary:bin_to_list(BinBodyPart),
-    Is_true = lists:suffix([125,10,10], L),
-    if Is_true ->
-            % io:format("::::::::::::::::::::::::::  ~s~n", [State ++ L]),
-            gen_server:cast(counter, [State ++ L]),
-            New_state = [];
-        true ->
-            New_state = State ++ L
-    end,
-    {noreply, New_state}.
+    L = split_msg(binary:bin_to_list(BinBodyPart)),
+    New_State = construct_msg(L, State),
+    {noreply, New_State}.
+
+% Logic
+
+construct_msg([], Buffer) ->
+    Buffer;
+
+construct_msg([H|T], Buffer) ->
+    New_Buffer = construct_msg(lists:suffix([125,10,10], H), Buffer ++ H),
+    construct_msg(T, New_Buffer);
+    
+construct_msg(true, Buffer) ->
+    gen_server:cast(counter, Buffer),
+    [];
+
+construct_msg(false, Buffer) ->
+    Buffer.
+
+split_msg(S) ->
+    string:split(S, "event: \"message\"\n\ndata: ", all).
 
 
+% Unused func
 
 terminate(_Reason, _State) ->
     ok.

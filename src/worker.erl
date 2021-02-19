@@ -21,16 +21,23 @@ init(_Args) ->
 
 handle_cast({msg, Msg}, State) ->
     timer:sleep(rand:uniform(41) + 9),
-    Formated_message = string:prefix(string:chomp(Msg), "event: \"message\"\n\ndata: "),
-    Parssed_message = mochijson2:decode(Formated_message),
+    Formated_message = string:chomp(Msg),
+    Parssed_message = generate_json(Formated_message),
     Text = ej:get({"message", "tweet", "text"}, Parssed_message),
-    Cov = binary:bin_to_list(Text),
-    Splited = split_words(Cov),
+    io:format("~nMes:: ~s~n", [Text]),
+
+    % Cov = binary:bin_to_list(Text),
+    % Splited = split_words(Cov),
     
     
-    io:format("~nText: ~p~n", [get_score(score, Splited)]),
+    % io:format("~nText: ~p~n", [get_score(score, Splited)]),
     {noreply, State}. 
 
+generate_json("{\"message\": panic}") ->
+    panic;
+
+generate_json(S) ->
+    Parssed_message = mochijson2:decode(S).
 
 % Logic
 
