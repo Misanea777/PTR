@@ -36,7 +36,7 @@ construct_msg([], Buffer) ->
     Buffer;
 
 construct_msg([H|T], Buffer) ->
-    New_Buffer = construct_msg(lists:suffix([125,10,10], H), Buffer ++ H),
+    New_Buffer = construct_msg(lists:suffix([10,10], H), Buffer ++ H),
     construct_msg(T, New_Buffer);
     
 construct_msg(true, Buffer) ->
