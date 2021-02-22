@@ -24,7 +24,7 @@ handle_cast({msg, Msg}, State) ->
     Formated_message = string:chomp(Msg),
     Parssed_message = generate_json(Formated_message),
 
-    get_hashtags(Parssed_message),
+    % get_hashtags(Parssed_message),
 
     Text = ej:get({"message", "tweet", "text"}, Parssed_message),
     Cov = binary:bin_to_list(Text),

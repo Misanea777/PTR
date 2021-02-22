@@ -15,44 +15,25 @@ init(_Args) ->
 
 
 handle_cast({hashtag, Hashtags}, State) ->
-    extract_value(Hashtags, State),
-    {noreply, State}.
+    New_state = extract_value(Hashtags, State),
+    {noreply, New_state}.
 
 extract_value([], {Sketch, Current_top}) ->
-    ok;
+    {Sketch, Current_top};
 
 extract_value([H|T], {Sketch, Current_top}) ->
     Hashtag = ej:get({"text"}, H),
     % io:format("Recived: ~s~n", [Hashtag]),
-    {Is_it_worth, Ocur, New_sketch} = is_it_worthy(Hashtag, Sketch, Current_top),
-    New_top = update_top({Is_it_worth, Ocur, New_sketch}),
+    {New_sketch, New_top} = update_top(Hashtag, Sketch, Current_top),
     extract_value(T, {New_sketch, New_top}).
 
-update_top({false, Ocur, New_sketch}, Current_top, Hashtag) ->
-    Current_top;
+update_top(Hashtag, Sketch, Current_top) ->
+    {Ocur, New_sketch} = count_min_sketch:update_sketch(Sketch, Hashtag), 
+    New_top = lists:reverse(lists:sort(Current_top ++ {Ocur, Hashtag})),
+    {New_sketch, lists:sublist(New_top, 10)}.
 
-update_top({true, Ocur, New_sketch}, Current_top, Hashtag) ->
-    New_top = [{Ocur, Hashtag}|Current_top],
-    New_top.
 
-is_it_worthy(Hashtag, Sketch, []) ->
-    {Ocur, New_sketch} = count_min_sketch:update_sketch(Sketch, Hashtag),
-    {true, Ocur, New_sketch};
 
-is_it_worthy(Hashtag, Sketch, Current_top) ->
-    {Ocur, New_sketch} = count_min_sketch:update_sketch(Sketch, Hashtag),
-    {battle_of_hashtags(Ocur, Current_top), Ocur, New_sketch}.
-
-battle_of_hashtags(_Ocur, []) ->
-    false;
-
-battle_of_hashtags(Ocur, [H|T]) ->
-    {Ocur_rival, _Name} = H,
-    if Ocur > Ocur_rival ->
-        true;
-    true ->
-        battle_of_hashtags(Ocur, T)
-    end.
    
 
 
