@@ -23,6 +23,9 @@ handle_cast({msg, Msg}, State) ->
     timer:sleep(rand:uniform(41) + 9),
     Formated_message = string:chomp(Msg),
     Parssed_message = generate_json(Formated_message),
+
+    get_hashtags(Parssed_message),
+
     Text = ej:get({"message", "tweet", "text"}, Parssed_message),
     Cov = binary:bin_to_list(Text),
     Splited = split_words(Cov),
@@ -35,6 +38,16 @@ generate_json("{\"message\": panic}") ->
 
 generate_json(S) ->
     mochijson2:decode(S).
+
+send_hashtags([]) ->
+    ok;
+
+send_hashtags(Hashtags) ->
+    gen_server:cast(hashtag_ranker, {hashtag, Hashtags}).
+
+get_hashtags(Parssed_message) ->
+    Hashtags = ej:get({"message", "tweet", "entities", "hashtags"}, Parssed_message),
+    send_hashtags(Hashtags).
 
 % Logic
 

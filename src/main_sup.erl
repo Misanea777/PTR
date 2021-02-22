@@ -25,6 +25,14 @@ init(_Args) ->
             modules => [dict_getter]
         },
         #{
+            id => hashtag_ranker,
+            start => {hashtag_ranker, start_link, []},
+            restart => permanent,
+            shutdown => infinity,
+            type => worker,
+            modules => [hashtag_ranker]
+        },
+        #{
             id => dynamic_supervisor,
             start => {dynamic_supervisor, start_link, []},
             restart => permanent,

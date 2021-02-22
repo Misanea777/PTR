@@ -1,5 +1,5 @@
 -module(count_min_sketch).
--export([init_sketch/0, update_sketch/2, print/1]).
+-export([init/0, update_sketch/2, print/1]).
 
 -define(NR_OF_HASH_F, 4). 
 -define(MAX_HASH_VAL, 256).
@@ -19,13 +19,13 @@ gen_hashes(N, Prefixes) ->
 get_hash_val(Prefix, Data) ->
     binary:first(crypto:hash(md5, Data ++ Prefix)).
 
-
-init_sketch() ->
+% high IQ code from 4 am
+init() ->
     {gen_hashes(?NR_OF_HASH_F), array_2d:new({?MAX_HASH_VAL, ?NR_OF_HASH_F})}.
 
 update_sketch({Hashes, Sketch_T}, Data) ->
     {New_sketch_T, Ocur} = update_sketch({Hashes, Sketch_T}, Data, []),
-    {Ocur, {Hashes, New_sketch_T}}.
+    {lists:min(Ocur), {Hashes, New_sketch_T}}.
 
 update_sketch({[] = _Hashes, Sketch_T}, _Data, Ocur) ->
     {Sketch_T, Ocur};
@@ -38,7 +38,7 @@ update_sketch({[H|T] = _Hashes, Sketch_T}, Data, Ocur) ->
 update_sketch_with_a_hash({Nr, Hash}, Data, Sketch_T, Ocur) ->
     Row = get_hash_val(Hash, Data),
     Current_val = array_2d:get(Row, Nr, Sketch_T),
-    io:format("~p", [Current_val]),
+    % io:format("~p", [Current_val]),
     {array_2d:set(Row, Nr, Current_val+1, Sketch_T), [Current_val+1 | Ocur]}.
 
 
