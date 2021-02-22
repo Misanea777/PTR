@@ -2,7 +2,7 @@
 -export([init/0, update_sketch/2, print/1]).
 
 -define(NR_OF_HASH_F, 4). 
--define(MAX_HASH_VAL, 256).
+-define(MAX_HASH_VAL, 257).
 
 
 gen_hashes(N) ->
@@ -17,7 +17,7 @@ gen_hashes(N, Prefixes) ->
 
 % this will greatly increase the collisions, but well I don't have a workstation just a shity laptop
 get_hash_val(Prefix, Data) ->
-    binary:first(crypto:hash(md5, Data ++ Prefix)).
+    binary:first(crypto:hash(md5, Data ++ Prefix)) + 1.
 
 % high IQ code from 4 am
 init() ->

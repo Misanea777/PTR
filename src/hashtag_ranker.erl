@@ -22,15 +22,52 @@ extract_value([], {Sketch, Current_top}) ->
     {Sketch, Current_top};
 
 extract_value([H|T], {Sketch, Current_top}) ->
-    Hashtag = ej:get({"text"}, H),
-    % io:format("Recived: ~s~n", [Hashtag]),
+    Hashtag = binary:bin_to_list(ej:get({"text"}, H)),
+
+    % io:format("Current top: ~p:~n", [Current_top]),
+    print_top(top, Current_top),
+
     {New_sketch, New_top} = update_top(Hashtag, Sketch, Current_top),
     extract_value(T, {New_sketch, New_top}).
 
+
+%don't look furher if you dont want to become blind
+
 update_top(Hashtag, Sketch, Current_top) ->
     {Ocur, New_sketch} = count_min_sketch:update_sketch(Sketch, Hashtag), 
-    New_top = lists:reverse(lists:sort(Current_top ++ {Ocur, Hashtag})),
+
+    Is_present = check_if_present(Current_top, Hashtag),
+    if not Is_present ->
+        New_top = lists:reverse(lists:sort([{Ocur, Hashtag}|Current_top]));
+    true ->
+        New_top = Current_top
+    end,
+
+
     {New_sketch, lists:sublist(New_top, 10)}.
+
+check_if_present([], _) ->
+    false;
+
+check_if_present([{_, Name}|T], New_name) ->
+    if Name == New_name ->
+        true;
+    true ->
+        check_if_present(T, New_name)
+    end.
+
+print_top(top, Current_top) ->
+    io:format("Top: ", []),
+    print_top(Current_top),
+    io:format("~n", []).
+
+print_top([]) ->
+    ok;
+
+print_top([H|T]) ->
+    {_Ocur, Name} = H,
+    io:format("~s, ", [Name]),
+    print_top(T).
 
 
 
