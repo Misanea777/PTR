@@ -1,5 +1,5 @@
 -module(array_2d).
--export([new/1, size/1, get/3, set/4]).
+-export([new/1, size/1, get/3, set/4, print/3]).
 
 new({Rows, Cols}) ->
     Dict = dict:new(),
@@ -23,8 +23,24 @@ size(Dict) ->
     dict:size(Dict).
 
 get(Row, Column, Dict) ->
-    dict:find({Row, Column}, Dict).
+    {ok, Val} = dict:find({Row, Column}, Dict),
+    Val.
 
 set(Row, Column, Value, Dict) ->
     dict:store({Row, Column}, Value , Dict).
+
+
+print(Rows, Cols, Dict) ->
+    print(1, 1, {Rows, Cols}, Dict).
+
+print(Row, _Col, {Rows, _Cols}, _Dict) when Rows < Row ->
+    ok;
+
+print(Row, Col, {Rows, Cols},  Dict) when Cols >= Col ->
+    io:format("~p", [get(Row, Col, Dict)]),
+    print(Row, Col+1, {Rows, Cols}, Dict);
+
+print(Row, Col, {Rows, Cols}, Dict) when Cols < Col ->
+    io:format("~n", []),
+    print(Row+1, 1, {Rows, Cols}, Dict).
 
