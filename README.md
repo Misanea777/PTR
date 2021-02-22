@@ -1,8 +1,6 @@
-<<<<<<< HEAD
- PTR# REAL TIME PROGRAMMING
-=======
+
 # PTR# REAL TIME PROGRAMMING
->>>>>>> 1d0935ca3cf0a6c9399c5a470cf3b23df70517b0
+
 ### Laboratory work 1
 ### Student Filipescu Mihail
 #### Group: FAF-181
@@ -34,8 +32,7 @@ main_sup:start_link().
 ```
 
 ## Demonstration:
-<<<<<<< HEAD
+
+
 https://www.youtube.com/watch?v=hAs9p6QPZ6I
-=======
-https://www.youtube.com/watch?v=hAs9p6QPZ6I
->>>>>>> 1d0935ca3cf0a6c9399c5a470cf3b23df70517b0
+
