@@ -27,7 +27,7 @@ handle_cast({msg, Msg}, State) ->
     Cov = binary:bin_to_list(Text),
     Splited = split_words(Cov),
     
-    io:format("~nText: ~s :: ~p~n", [Text, get_score(score, Splited)]),
+    % io:format("~nText: ~s :: ~p~n", [Text, get_score(score, Splited)]),
     {noreply, State}. 
 
 generate_json("{\"message\": panic}") ->
