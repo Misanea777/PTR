@@ -19,19 +19,28 @@ init(_Args) ->
 
 
 
-handle_cast({msg, Msg}, State) ->
+handle_cast({sent_anal, Msg}, State) ->
     timer:sleep(rand:uniform(41) + 9),
-    Formated_message = string:chomp(Msg),
+    {Id, Tweet} = Msg,
+    Formated_message = string:chomp(Tweet),
     Parssed_message = generate_json(Formated_message),
 
-    get_hashtags(Parssed_message),
+    % get_hashtags(Parssed_message),
 
-    Text = ej:get({"message", "tweet", "text"}, Parssed_message),
-    Cov = binary:bin_to_list(Text),
-    Splited = split_words(Cov),
+
     
-    % io:format("~nText: ~s :: ~p~n", [Text, get_score(score, Splited)]),
-    {noreply, State}. 
+    % io:format("Sentiment- ~p:: ~p~n", [Id, sent_anal:analyze(Parssed_message)]),
+    {noreply, State}; 
+
+
+handle_cast({eng_anal, Msg}, State) ->
+    timer:sleep(rand:uniform(41) + 9),
+    {Id, Tweet} = Msg,
+    Formated_message = string:chomp(Tweet),
+    Parssed_message = generate_json(Formated_message),
+
+    io:format("Engagement- ~p:: ~p~n", [Id, eng_anal:analyze(Parssed_message)]),
+    {noreply, State}.
 
 generate_json("{\"message\": panic}") ->
     exit(self(), kill);
@@ -50,41 +59,6 @@ get_hashtags(Parssed_message) ->
     send_hashtags(Hashtags).
 
 % Logic
-
-split_words(S) ->
-    string:lexemes(S, [$\s, "\""]).
-
-get_score(score, List) ->
-    get_score(List, 0) / length(List);
-
-get_score([], Acc) ->
-    Acc;
-
-get_score([H|T], Acc) ->
-    get_score(T, Acc + get_score(ets:lookup(sent_dict, H))).
-
-get_score([]) ->
-    0;
-
-get_score([{_Key, Val}|_Tail]) ->
-    list_to_integer(Val).
-
-% put_in_tuples([], Acc) ->
-%     Acc;
-
-% put_in_tuples([H|T], Acc) ->
-%     put_in_tuples(T, [{H}|Acc]).
-
-% merge_nested_lists([], Acc) ->
-%     Acc;
-
-% merge_nested_lists(List, Acc) ->
-%     [H|T] = List,
-%     if is_list(H) ->
-%         merge_nested_lists(T, Acc ++ merge_nested_lists(H, []));
-%     true ->
-%         merge_nested_lists(T, [H|Acc])
-% end.
 
 
 

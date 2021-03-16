@@ -25,7 +25,7 @@ extract_value([H|T], {Sketch, Current_top}) ->
     Hashtag = binary:bin_to_list(ej:get({"text"}, H)),
 
     % io:format("Current top: ~p:~n", [Current_top]),
-    print_top(top, Current_top),
+    % print_top(top, Current_top),
 
     {New_sketch, New_top} = update_top(Hashtag, Sketch, Current_top),
     extract_value(T, {New_sketch, New_top}).

@@ -1,6 +1,6 @@
 -module(auto_scaler).
 -define(SCALER_RATE, 1).
--define(MSG_PER_WORKER, 50).
+-define(MSG_PER_WORKER, 50 * 2).
 -define(INITIAL_WORKERS, 1).
 -behaviour(gen_server).
 

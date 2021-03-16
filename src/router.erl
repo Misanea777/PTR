@@ -15,25 +15,27 @@ init(_Args) ->
 
 
 handle_cast({msg, Msg}, State) ->
-    New_state = round_robin(State, Msg),
+    New_state = round_robin(State, {erlang:unique_integer([positive]), Msg}),
     {noreply, New_state}.
+
 
 %Logic
 
 round_robin(Index, Msg) ->
-    round_robin(Index, Msg, length(global:registered_names())).
+    NextIndex = round_robin(Index, Msg, length(global:registered_names()), sent_anal),
+    round_robin(NextIndex, Msg, length(global:registered_names()), eng_anal).
 
-round_robin(Index, Msg, Nr_of_Workers) when Nr_of_Workers > 0 ->
+round_robin(Index, Msg, Nr_of_Workers, Command) when Nr_of_Workers > 0 ->
     Is_true = Index > length(global:registered_names()),
     if Is_true ->
             Next_index = 1;
         true ->
            Next_index = Index
     end,
-    gen_server:cast(lists:nth(Next_index, global:registered_names()), {msg, Msg}),
+    gen_server:cast(lists:nth(Next_index, global:registered_names()), {Command, Msg}),
     Next_index + 1;
 
-round_robin(_Index, Msg, _Nr_of_Workers) ->
+round_robin(_Index, Msg, _Nr_of_Workers, _Command) ->
     gen_server:cast(router, {msg, Msg}),
     1.
 
