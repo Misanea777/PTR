@@ -14,8 +14,8 @@ init(_Args) ->
 
 
 
-handle_cast({msg, Msg}, State) ->
-    New_state = round_robin(State, {erlang:unique_integer([positive]), Msg}),
+handle_cast(Tweet, State) ->
+    New_state = round_robin(State, Tweet),
     {noreply, New_state}.
 
 

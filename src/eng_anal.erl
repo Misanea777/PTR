@@ -3,11 +3,9 @@
 
 analyze(Tweet) ->
     
-    Followers = ej:get({"message", "tweet", "user", "followers_count"}, Tweet),
-    Favorites = ej:get({"message", "tweet", "favorite_count"}, Tweet),
-    Retweets = ej:get({"message", "tweet", "retweet_count"}, Tweet),
-
-    Retweet_status = ej:get({"message", "tweet", "retweeted_status"}, Tweet),
+    Followers = ej:get({"user", "followers_count"}, Tweet),
+    Favorites = ej:get({"favorite_count"}, Tweet),
+    Retweets = ej:get({"retweet_count"}, Tweet),
 
     get_score(Followers, Favorites, Retweets).
     

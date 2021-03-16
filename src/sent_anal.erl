@@ -2,7 +2,7 @@
 -export([analyze/1]).
 
 analyze(Tweet) ->
-    Text = ej:get({"message", "tweet", "text"}, Tweet),
+    Text = ej:get({"text"}, Tweet),
     Cov = binary:bin_to_list(Text),
     Splited = split_words(Cov),
     

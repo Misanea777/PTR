@@ -17,36 +17,32 @@ init(_Args) ->
     global:register_name(self(), self()),
     {ok, none}.
 
+handle_cast({_Type, {_Id, panic}}, State) ->
+    exit(self(), kill),
+    {noreply, State}; 
 
 
 handle_cast({sent_anal, Msg}, State) ->
     timer:sleep(rand:uniform(41) + 9),
     {Id, Tweet} = Msg,
-    Formated_message = string:chomp(Tweet),
-    Parssed_message = generate_json(Formated_message),
-
+    
+    
     % get_hashtags(Parssed_message),
 
 
     
-    % io:format("Sentiment- ~p:: ~p~n", [Id, sent_anal:analyze(Parssed_message)]),
+    io:format("Sentiment- ~p:: ~p~n", [Id, sent_anal:analyze(Tweet)]),
     {noreply, State}; 
 
 
 handle_cast({eng_anal, Msg}, State) ->
     timer:sleep(rand:uniform(41) + 9),
     {Id, Tweet} = Msg,
-    Formated_message = string:chomp(Tweet),
-    Parssed_message = generate_json(Formated_message),
 
-    io:format("Engagement- ~p:: ~p~n", [Id, eng_anal:analyze(Parssed_message)]),
+    
+    io:format("Engagement- ~p:: ~p~n", [Id, eng_anal:analyze(Tweet)]),
     {noreply, State}.
 
-generate_json("{\"message\": panic}") ->
-    exit(self(), kill);
-
-generate_json(S) ->
-    mochijson2:decode(S).
 
 send_hashtags([]) ->
     ok;
