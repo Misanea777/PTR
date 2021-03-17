@@ -15,6 +15,7 @@ init(_Args) ->
 
 
 handle_cast(Tweet, State) ->
+    gen_server:cast(aggregator, {tweet, Tweet}),
     New_state = round_robin(State, Tweet),
     {noreply, New_state}.
 

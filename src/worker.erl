@@ -31,7 +31,12 @@ handle_cast({sent_anal, Msg}, State) ->
 
 
     
-    io:format("Sentiment- ~p:: ~p~n", [Id, sent_anal:analyze(Tweet)]),
+    % io:format("Sentiment- ~p:: ~p~n", [Id, sent_anal:analyze(Tweet)]),
+
+    SentScore = sent_anal:analyze(Tweet),
+
+    gen_server:cast(aggregator, {sent_score, {Id, SentScore}}),
+
     {noreply, State}; 
 
 
@@ -40,7 +45,12 @@ handle_cast({eng_anal, Msg}, State) ->
     {Id, Tweet} = Msg,
 
     
-    io:format("Engagement- ~p:: ~p~n", [Id, eng_anal:analyze(Tweet)]),
+    % io:format("Engagement- ~p:: ~p~n", [Id, eng_anal:analyze(Tweet)]),
+
+    EngScore = eng_anal:analyze(Tweet),
+
+    gen_server:cast(aggregator, {eng_score, {Id, EngScore}}),
+
     {noreply, State}.
 
 
