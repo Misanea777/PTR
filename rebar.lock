@@ -1,0 +1,8 @@
+[{<<"ej">>,
+  {git,"https://github.com/seth/ej.git",
+       {ref,"40821f7ab3d8746e8573e8542ad452d2b346ed7f"}},
+  0},
+ {<<"mochijson2">>,
+  {git,"https://github.com/mochi/mochiweb.git",
+       {ref,"070594e4d66163d662ac7e3bfb75dadcc922dd7c"}},
+  0}].
