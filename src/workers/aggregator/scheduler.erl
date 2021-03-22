@@ -31,7 +31,7 @@ handle_cast({adjust_rate, _RateModif}, State)->
 
 handle_info(periodic_loop, State) ->
     % io:format("Loop me harder dady~n", []),
-    io:format("Rate:: ~p~n", [State#state.rate]),
+    % io:format("Rate:: ~p~n", [State#state.rate]),
     gen_server:cast(aggregator, {get, State#state.rate}),
     periodic_loop(),
     {noreply, State}.

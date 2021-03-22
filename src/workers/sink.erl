@@ -43,7 +43,7 @@
 
 -define(BATCH, 100).
 -define(OPT_INS_TIME, 550). % optimal insertion time
--define(TIMEOUT, 4000).
+-define(TIMEOUT, 5500).
 
 start_link() ->
     gen_server:start_link({local, sink}, ?MODULE, [], []).
@@ -65,7 +65,7 @@ handle_cast(Msg, State) ->
     {noreply, NewState}.
 
 handle_info(timeout, State) ->
-    io:format("Timeout insertion:: ~p~n",[length(State#state_obj.buffer)]),
+    io:format("Timeout insertion::~p Len:: ~p~n",[State#state_obj.timer, length(State#state_obj.buffer)]),
     NewState = timeout_insert(State),
     {noreply, NewState}.
 
@@ -75,10 +75,13 @@ handle_info(timeout, State) ->
 % --Timer - Jikan desu!
 
 start_timer() ->
-    timer:send_after(?TIMEOUT, timeout).
+    {ok, TRef} = timer:send_after(?TIMEOUT, timeout),
+    % io:format("Starting:: ~p~n",[TRef]),
+    TRef.
 
 reset_timer(TRef) ->
-    timer:cancel(TRef),
+    {ok, _} = timer:cancel(TRef),
+    % io:format("Canceling:: ~p~n",[TRef]),
     start_timer().
 
 
