@@ -3,7 +3,7 @@
 -behaviour(gen_server).
 
 %% API
--export([insert_to_db/2]).
+-export([insert_to_db/3, insert_usr_and_tw/2]).
 -export([start_link/0]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 -record(state_obj, {db_conn, buffer, timer}).
@@ -33,7 +33,8 @@
     {ssl, true}
 ]).
 
--define(tweets_collection, <<"test">>).
+-define(tweets_collection, <<"tweets">>).
+-define(users_collection, <<"users">>).
 -define(seed, {rs, <<"atlas-v26yq5-shard-0">>, [
     "cluster0-shard-00-00.ux9po.mongodb.net:27017",
     "cluster0-shard-00-01.ux9po.mongodb.net:27017",
@@ -54,10 +55,10 @@ init(_Args) ->
     {ok, #state_obj{db_conn = DBConn, buffer = [], timer = TRef}}.
 
 
-handle_cast([], State) ->
+handle_cast({_, []}, State) ->
     {noreply, State};
 
-handle_cast(Msg, State) ->
+handle_cast({tweets, Msg}, State) ->
 
     % io:format("size: ~p ~n", [length(State#state_obj.buffer)]),
     NewBuffer = State#state_obj.buffer ++ Msg,
@@ -93,23 +94,24 @@ start_db_conn() ->
     {ok, DBConn} = mongoc:connect(?seed, ?conn_opt, ?worker_opt),
     DBConn.
 
-insert_to_db(DBConn, ElemList) ->
-    mongo_api:insert(DBConn, ?tweets_collection, ElemList),
+insert_to_db(DBConn, ElemList, Coll) ->
+    mongo_api:insert(DBConn, Coll, ElemList),
     timer:sleep(trunc(rand:normal(50, 3))),
     ok.
 
 % --Batching
 
 timeout_insert(State) ->
-    insert_to_db(State#state_obj.db_conn, State#state_obj.buffer),
-    gen_server:cast(scheduler, {adjust_rate, 0.5}), 
+    insert_usr_and_tw(State#state_obj.db_conn, State#state_obj.buffer),
+    gen_server:cast(scheduler, {adjust_rate, 0.01}), 
     TRef = start_timer(),
     State#state_obj{buffer = [], timer = TRef}.
 
 try_insert_to_db(State) when length(State#state_obj.buffer) > ?BATCH ->
     ToSend = lists:sublist(State#state_obj.buffer, ?BATCH),
+    
 
-    {Time, _} = timer:tc(?MODULE, insert_to_db, [State#state_obj.db_conn, ToSend]),
+    {Time, _} = timer:tc(?MODULE, insert_usr_and_tw, [State#state_obj.db_conn, ToSend]),
     io:format("Inserted in:: ~p ms Len:: ~p ~n", [Time div 1000, length(ToSend)]),
 
     gen_server:cast(scheduler, {adjust_rate, check_deviation(Time)}),
@@ -127,6 +129,29 @@ try_insert_to_db(State) ->
 
 check_deviation(InsertionTime) ->
     (?OPT_INS_TIME - (InsertionTime div 1000)) / 100.
+
+
+% --Other
+
+extract_users(AggParts) ->
+    extract_users(AggParts, []).
+
+extract_users([], Acc) ->
+    % io:format("Users:::~n~p~n",[Acc]),
+    Acc;
+
+extract_users(AggParts, Acc) ->
+    [H|T] = AggParts,
+    Tweet = proplists:get_value(tweet, H),
+    User = ej:get({"user"}, Tweet),
+    extract_users(T, Acc ++ [User]).
+
+
+insert_usr_and_tw(DbConn, AggParts) ->
+    Users = extract_users(AggParts),
+    insert_to_db(DbConn, AggParts, ?tweets_collection),
+    insert_to_db(DbConn, Users, ?users_collection),
+    ok.
 
 
 

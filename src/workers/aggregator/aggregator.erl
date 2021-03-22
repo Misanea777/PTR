@@ -27,7 +27,7 @@ init(_Args) ->
 
 handle_cast({get, Nr}, State) ->
     {ToGive, NewState} = give(State, Nr),
-    gen_server:cast(sink, ToGive),
+    gen_server:cast(sink, {tweets, ToGive}),
     {noreply, NewState};
 
 
@@ -48,6 +48,8 @@ give(Buffer, Nr) ->
     ToGive = lists:sublist(Buffer, Nr),
     NewBuffer = lists:sublist(Buffer, Nr + 1, ?MAX_AGG_PARTS),
     {ToGive, NewBuffer}.
+
+
 
 create_state(OldState, []) -> % State is a placeholder for aggregated parts
     OldState;
