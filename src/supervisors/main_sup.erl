@@ -17,12 +17,20 @@ init(_Args) ->
 
     ChildSpecifications = [
         #{
-            id => aggregator,
-            start => {aggregator, start_link, []},
+            id => sink,
+            start => {sink, start_link, []},
             restart => permanent,
             shutdown => infinity,
             type => worker,
-            modules => [aggregator]
+            modules => [sink]
+        },
+        #{
+            id => agg_sup,
+            start => {agg_sup, start_link, []},
+            restart => permanent,
+            shutdown => infinity,
+            type => supervisor,
+            modules => [agg_sup]
         },
         #{
             id => dict_getter,

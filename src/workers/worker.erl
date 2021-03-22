@@ -26,31 +26,17 @@ handle_cast({sent_anal, Msg}, State) ->
     timer:sleep(rand:uniform(41) + 9),
     {Id, Tweet} = Msg,
     
-    
     % get_hashtags(Parssed_message),
-
-
-    
-    % io:format("Sentiment- ~p:: ~p~n", [Id, sent_anal:analyze(Tweet)]),
-
     SentScore = sent_anal:analyze(Tweet),
-
     gen_server:cast(aggregator, {sent_score, {Id, SentScore}}),
-
     {noreply, State}; 
 
 
 handle_cast({eng_anal, Msg}, State) ->
     timer:sleep(rand:uniform(41) + 9),
     {Id, Tweet} = Msg,
-
-    
-    % io:format("Engagement- ~p:: ~p~n", [Id, eng_anal:analyze(Tweet)]),
-
     EngScore = eng_anal:analyze(Tweet),
-
     gen_server:cast(aggregator, {eng_score, {Id, EngScore}}),
-
     {noreply, State}.
 
 
