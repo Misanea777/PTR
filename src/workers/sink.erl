@@ -149,6 +149,7 @@ extract_users(AggParts, Acc) ->
 
 insert_usr_and_tw(DbConn, AggParts) ->
     Users = extract_users(AggParts),
+    io:format(":::::::::::::: ~p  ~p~n", [length(AggParts), length(Users)]),
     insert_to_db(DbConn, AggParts, ?tweets_collection),
     insert_to_db(DbConn, Users, ?users_collection),
     ok.
