@@ -1,0 +1,26 @@
+version: "3.9"
+services:
+  msg_broker: 
+    build: 
+      context: msg_broker
+    ports:
+      - "4020:4020"
+    working_dir: /app
+    command: rebar3 shell
+
+
+  consumer:
+    depends_on:
+      - msg_broker
+    build: 
+      context: consumer
+    working_dir: /app
+    command: rebar3 shell
+
+    cdc:
+      depends_on:
+        - msg_broker
+      build: 
+        context: CDC
+
+    

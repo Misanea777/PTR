@@ -1,5 +1,9 @@
 -module(tcp_server).
 
+-include("msg.hrl").
+
+-compile({parse_transform, fancyflow_trans}).
+
 -export([start/1, serve/1]).
 
 -define(HEADER_SIZE, 4).
@@ -35,7 +39,23 @@ accept(LS) ->
 serve(S) ->
     case gen_tcp:recv(S, 0) of
         {ok, Data} -> 
-            io:format("Received:::::::::::::::::::~n ~s~n", [Data]),
+            Msg = msg_types:deserialize(Data),
+            
+            executor:execute({Msg, S}),
+
+            % MyMsg = [pipe](
+            %     msg_types:build_msg(),
+            %     msg_types:with_header(_, 
+            %         [pipe](
+            %             msg_types:build_header(jora), 
+            %             msg_types:with_option(_, msg_types:mk_option(loh, true))
+            %         )
+            %     )
+            % ),
+
+            
+            % io:format("suca:::::::::::::::::::~n ~p~n", [Msg]),
+            % io:format("moio:::::::::::::::::::~n ~p~n", [MyMsg]),
             serve(S);
         {error, Reason} ->
             io:format("Socket terminated: ~s~n", [Reason])

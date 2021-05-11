@@ -13,23 +13,17 @@ import java.util.*;
 public class Message {
 
     private MsgType msgType;  //req
-    private String[] topics;  //req
     private List<Option> opt;     //opt
     private JSONObject body;      //it depends
 
     private Message(Builder builder) {
         this.msgType = builder.msgType;
-        this.topics = builder.topics;
         this.opt = builder.opt;
         this.body = builder.body;
     }
 
     public MsgType getMsgType() {
         return msgType;
-    }
-
-    public String[] getTopics() {
-        return topics;
     }
 
     public List<Option> getOpt() {
@@ -42,8 +36,9 @@ public class Message {
 
     public JSONArray toJson() {
         JSONObject header = new JSONObject();
-        header.put("type", msgType);
-        header.put("topics", Arrays.asList(topics));
+        header.put("type", msgType.toString());
+
+
         if (opt.size() > 0) header.put("opt", toJsonList(opt));
 
         JSONObject msgBody = new JSONObject();
@@ -75,13 +70,11 @@ public class Message {
 
     public static class Builder {
         private final MsgType msgType;  //req
-        private final String[] topics;  //req
         private List<Option> opt = new ArrayList<Option>();     //opt
         private JSONObject body;      //it depends
 
-        public Builder(MsgType msgType, String[] topics) {
+        public Builder(MsgType msgType) {
             this.msgType = msgType;
-            this.topics = topics;
         }
 
         public Builder withOptions(List<Option> options) {
